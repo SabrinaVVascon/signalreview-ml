@@ -202,7 +202,7 @@ Os relatórios locais contêm informações da análise e não precisam ser envi
 Após a publicação no GitHub:
 
 ```bash
-git clone https://github.com/SEU-USUARIO/signalreview-ml.git
+git clone https://github.com/SabrinaVVascon/signalreview-ml.git
 cd signalreview-ml
 ```
 
@@ -458,25 +458,14 @@ Os dados utilizados podem ser obtidos por meio do script de download, respeitand
 
 A licença do código do projeto será definida separadamente.
 
-## Status de desenvolvimento
-
-- [x] Configuração do ambiente Python
-- [x] Ingestão e preparação dos dados
-- [x] Treinamento supervisionado
-- [x] Comparação de classificadores
-- [x] Avaliação de desempenho
-- [x] API REST com FastAPI
-- [x] Testes automatizados iniciais
-- [x] Análise de erros
-- [x] Auditoria automatizada
-- [x] Geração de gráficos
-- [x] Construção da imagem Docker
-- [x] Validação da API no Docker
-- [ ] Publicação do código no GitHub
-- [ ] Publicação do modelo no Hugging Face
-- [ ] Criação do model card
-- [ ] Ampliação dos testes de integração e reprodução
-
 ## Objetivo
 
 O SignalReview ML foi desenvolvido como projeto autoral de portfólio em Engenharia de Inteligência Artificial, com foco na aplicação prática de Machine Learning supervisionado, processamento de linguagem natural, engenharia de software e disponibilização de modelos por API.
+
+## Links do projeto
+
+- **Código-fonte:** [GitHub](https://github.com/SabrinaVVascon/signalreview-ml)
+- **Modelo treinado:** [Hugging Face](https://huggingface.co/SabrinaVV/signalreview-ml)
+- **Model Card:** [Documentação do modelo](https://huggingface.co/SabrinaVV/signalreview-ml)
+
+O modelo de Regressão Logística está disponível no Hugging Face, acompanhado das métricas, documentação técnica e instruções de inferência.
