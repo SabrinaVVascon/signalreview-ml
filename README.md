@@ -1,17 +1,46 @@
 
 # SignalReview ML
 
-**Classificação de sentimentos em português com Machine Learning, NLP e FastAPI.**
+**Classificação de sentimentos em português com Machine Learning, NLP e uma demonstração web interativa.**
 
-O SignalReview ML é um projeto de Inteligência Artificial desenvolvido para classificar automaticamente o sentimento de avaliações de produtos em português.
+O **SignalReview ML** é um projeto autoral de Machine Learning supervisionado que classifica avaliações de produtos como **positivas** ou **negativas**.
 
-A aplicação implementa um pipeline completo de Machine Learning, abrangendo ingestão e preparação de dados, processamento de linguagem natural (NLP), treinamento supervisionado, comparação de classificadores, avaliação de desempenho, auditoria automatizada e disponibilização de inferência por API REST.
+O pipeline contempla preparação dos dados, vetorização TF-IDF, comparação de classificadores, avaliação de desempenho, auditoria automatizada e inferência via API REST.
 
-O projeto também utiliza Docker para permitir a execução da API em um ambiente padronizado.
+O modelo está publicado no Hugging Face e pode ser testado diretamente pelo navegador através de uma interface Streamlit.
 
-## Tecnologias utilizadas
+## 🚀 Experimente o projeto
 
-**Machine Learning e NLP**
+| Recurso | Link | Descrição |
+|---|---|---|
+| **Demonstração online** | **[Testar o SignalReview ML](https://signalreview-ml-demo.streamlit.app/)** | Classificar avaliações diretamente pelo navegador |
+| **Modelo treinado** | [Hugging Face](https://huggingface.co/SabrinaVV/signalreview-ml) | Modelo, métricas e Model Card |
+| **Código-fonte** | [GitHub](https://github.com/SabrinaVVascon/signalreview-ml) | Implementação completa e documentação |
+
+> **Para recrutadores:** a demonstração online é a maneira mais rápida de experimentar o projeto. Não é necessário instalar Python, Docker ou qualquer outra dependência.
+
+## 📊 Resultados em destaque
+
+| Indicador | Resultado |
+|---|---:|
+| Avaliações utilizadas após a preparação | **110.882** |
+| Modelo selecionado | **Regressão Logística** |
+| Acurácia no conjunto de teste | **94,81%** |
+| Precision macro | **92,88%** |
+| Recall macro | **95,22%** |
+| F1-score macro | **93,92%** |
+| Avaliações de teste | 16.633 |
+| Classificações corretas | 15.770 |
+| Divergências | 863 |
+
+**Interpretação:** as métricas representam a concordância entre as previsões e os rótulos aproximados derivados das estrelas atribuídas pelos consumidores.
+
+Os resultados não representam uma avaliação com anotações humanas independentes nem garantem o mesmo desempenho em outros contextos.
+
+## 🧰 Tecnologias utilizadas
+
+### Machine Learning e NLP
+
 - Python 3.12
 - pandas e NumPy
 - scikit-learn
@@ -20,266 +49,394 @@ O projeto também utiliza Docker para permitir a execução da API em um ambient
 - Multinomial Naive Bayes
 - Dummy Classifier
 
-**Backend e infraestrutura**
+### Backend e infraestrutura
+
 - FastAPI
 - Uvicorn
-- REST API
+- API REST
 - Docker
+- joblib
 - Git e GitHub
 
-**Testes e visualização**
+### Demonstração web
+
+- Streamlit
+- Streamlit Community Cloud
+- Hugging Face Hub
+
+### Testes e avaliação
+
 - pytest
 - Matplotlib
-- joblib
-- Métricas de classificação
+- Accuracy, Precision, Recall e F1-score
 - Matriz de confusão
+- Auditoria automatizada de divergências
 
-## Dataset
+## 🧠 Arquitetura do projeto
 
-O projeto utiliza o conjunto de dados [B2W-Reviews01](https://github.com/americanas-tech/b2w-reviews01), contendo avaliações de consumidores brasileiros.
+O SignalReview ML implementa um pipeline supervisionado de classificação de sentimentos.
+
+```mermaid
+flowchart TD
+    A[Dataset B2W-Reviews01] --> B[Limpeza e preparação]
+    B --> C[Divisão estratificada dos dados]
+    C --> D[TF-IDF: unigramas e bigramas]
+    D --> E[Treinamento e comparação de classificadores]
+    E --> F[Regressão Logística selecionada]
+    F --> G[Modelo salvo em joblib]
+    F --> H[Avaliação e auditoria automatizada]
+    H --> I[Relatórios e gráficos]
+    G --> J[API REST - FastAPI]
+    J --> K[Execução com Docker]
+    G --> L[Publicação no Hugging Face]
+    L --> M[Demonstração Streamlit]
+```
+
+A vetorização e o classificador são armazenados em um único `Pipeline` do scikit-learn, permitindo realizar previsões diretamente a partir dos textos originais.
+
+### Estrutura do repositório
+
+```text
+signalreview-ml/
+├── app/
+│   └── main.py
+├── demo/
+│   ├── app.py
+│   └── requirements.txt
+├── ml/
+│   ├── download_dataset.py
+│   ├── prepare_data.py
+│   ├── train.py
+│   ├── analyze_errors.py
+│   ├── analyze_auto.py
+│   └── plot_metrics.py
+├── tests/
+│   ├── test_api.py
+│   └── test_training.py
+├── data/
+├── artifacts/
+│   └── figures/
+│       ├── comparacao_modelos.png
+│       ├── matriz_confusao.png
+│       └── triagem_automatica.png
+├── Dockerfile
+├── requirements.txt
+├── requirements-api.txt
+└── README.md
+```
+
+Os dados brutos, os arquivos processados e o modelo binário não são distribuídos pelo GitHub.
+
+O modelo treinado está disponível separadamente no [Hugging Face](https://huggingface.co/SabrinaVV/signalreview-ml).
+
+## 🗂️ Dataset e preparação
+
+**Fonte:** [B2W-Reviews01](https://github.com/americanas-tech/b2w-reviews01), conjunto de avaliações de produtos em português.
 
 Após o pré-processamento, foram utilizadas **110.882 avaliações**.
 
 ### Distribuição das classes
 
-| Sentimento | Avaliações |
+| Sentimento | Quantidade |
 |---|---:|
 | Positivo | 78.281 |
 | Negativo | 32.601 |
 | **Total** | **110.882** |
 
-Os rótulos foram derivados das notas atribuídas pelos consumidores:
+### Estratégia de rotulagem
+
+Os rótulos foram construídos a partir das notas atribuídas pelos consumidores:
 
 - 1 e 2 estrelas: negativo
 - 3 estrelas: excluído
 - 4 e 5 estrelas: positivo
 
-O pré-processamento também remove registros incompletos, avaliações duplicadas e textos inválidos.
+O pipeline realiza limpeza dos dados, exclusão de registros inválidos e remoção de avaliações duplicadas.
 
-As estrelas são utilizadas como rótulos aproximados, podendo existir divergências entre a nota e o sentimento expresso no comentário.
+As estrelas são utilizadas como rótulos aproximados, podendo existir divergências entre a nota atribuída pelo consumidor e o sentimento expresso no comentário.
 
-## Arquitetura do projeto
+### Divisão dos dados
 
-O pipeline foi organizado nas seguintes etapas:
+Foi realizada uma divisão estratificada:
 
-1. **Ingestão:** obtenção das avaliações em formato CSV.
-2. **Preparação:** limpeza, tratamento e classificação inicial dos registros.
-3. **Separação:** divisão estratificada em treino, validação e teste.
-4. **Vetorização:** transformação dos textos em características numéricas utilizando TF-IDF.
-5. **Treinamento:** treinamento supervisionado dos classificadores.
-6. **Comparação:** avaliação dos modelos utilizando métricas de classificação.
-7. **Seleção:** escolha do modelo pelo F1-score macro de validação.
-8. **Avaliação final:** análise do desempenho no conjunto de teste.
-9. **Persistência:** armazenamento do modelo treinado utilizando joblib.
-10. **API:** disponibilização de previsões por FastAPI.
-11. **Auditoria:** investigação automática das divergências entre modelos e rótulos.
-12. **Visualização:** geração de gráficos e relatórios de avaliação.
-13. **Containerização:** execução da API utilizando Docker.
+| Conjunto | Quantidade | Proporção |
+|---|---:|---:|
+| Treinamento | 77.617 | 70% |
+| Validação | 16.632 | 15% |
+| Teste | 16.633 | 15% |
 
-### Fluxo de funcionamento
+O processo utiliza `random_state=42` para permitir a reprodução da divisão.
 
-```text
-Dataset B2W-Reviews01
-         |
-         v
-Limpeza e preparação
-         |
-         v
-Treino / Validação / Teste
-         |
-         v
-Vetorização TF-IDF
-         |
-         v
-Treinamento dos classificadores
-         |
-         v
-Comparação e seleção do modelo
-         |
-         v
-Regressão Logística
-         |
-         +------> Avaliação e auditoria
-         |
-         v
-Modelo salvo (.joblib)
-         |
-         v
-API REST - FastAPI
-         |
-         v
-Classificação de sentimentos
-```
+Os modelos são comparados no conjunto de validação. O modelo selecionado é posteriormente reajustado utilizando treino e validação, mantendo o conjunto de teste separado.
 
-## Resultados do Machine Learning
-
-O modelo selecionado foi a **Regressão Logística**, por apresentar o melhor F1-score macro na etapa de validação.
-
-### Métricas no conjunto de teste
-
-| Métrica | Resultado |
-|---|---:|
-| Acurácia | 94,81% |
-| Precision macro | 92,88% |
-| Recall macro | 95,22% |
-| F1-score macro | 93,92% |
-| Avaliações de teste | 16.633 |
-| Classificações corretas | 15.770 |
-| Classificações divergentes | 863 |
-
-Os resultados representam o desempenho em relação aos rótulos derivados das estrelas, não uma medição direta de concordância com anotações humanas independentes.
+## 📈 Avaliação dos modelos
 
 ### Comparação dos classificadores
 
-F1-score macro obtido no conjunto de validação:
+Foram treinados e comparados três classificadores supervisionados ou de referência:
 
-| Modelo | F1-score macro |
+| Modelo | F1-score macro na validação |
 |---|---:|
-| Dummy Baseline | 41,38% |
+| Dummy Classifier | 41,38% |
 | Multinomial Naive Bayes | 92,51% |
-| Regressão Logística | 93,82% |
+| **Regressão Logística** | **93,82%** |
 
-### Gráfico comparativo
+A Regressão Logística foi selecionada por apresentar o melhor F1-score macro na validação.
 
-![Comparação dos modelos](artifacts/figures/comparacao_modelos.png)
+![Comparação de modelos](artifacts/figures/comparacao_modelos.png)
+
+### Avaliação no conjunto de teste
+
+| Métrica | Resultado |
+|---|---:|
+| Accuracy | 94,81% |
+| Precision macro | 92,88% |
+| Recall macro | 95,22% |
+| F1-score macro | 93,92% |
 
 ### Matriz de confusão
 
+| Real / Previsto | Negativo | Positivo |
+|---|---:|---:|
+| Negativo | 4.704 | 186 |
+| Positivo | 677 | 11.066 |
+
 ![Matriz de confusão](artifacts/figures/matriz_confusao.png)
 
-A matriz de confusão permite identificar os acertos e as divergências de classificação em cada classe.
+Foram registradas 15.770 correspondências e 863 divergências em relação aos rótulos derivados das estrelas.
 
-## Auditoria automática de classificações
+## 🔍 Auditoria automatizada
 
-Foi desenvolvido um processo de auditoria automatizada utilizando dois classificadores:
+Além das métricas tradicionais, o projeto implementa um processo automatizado para investigar divergências.
+
+O sistema utiliza dois classificadores:
 
 - **Modelo principal:** Regressão Logística.
 - **Modelo auxiliar:** Multinomial Naive Bayes.
 
-O objetivo é identificar possíveis inconsistências entre o sentimento escrito e as estrelas atribuídas pelos consumidores.
+O objetivo é identificar casos em que as previsões dos modelos divergem dos rótulos associados às estrelas.
 
 ### Resultados da auditoria
 
-Foram analisadas as 863 divergências identificadas no conjunto de teste.
-
-| Categoria | Quantidade |
+| Categoria de triagem | Quantidade |
 |---|---:|
-| Possível inconsistência entre texto e estrelas | 502 |
-| Modelos divergentes entre si | 253 |
-| Possível inconsistência com pontuações elevadas | 108 |
-| **Total** | **863** |
+| Modelos concordam entre si e discordam das estrelas | 502 |
+| Modelos discordam entre si | 253 |
+| Modelos concordam entre si e discordam das estrelas, com pontuações ≥ 90% | 108 |
+| **Total de divergências** | **863** |
 
-Em 610 casos, os dois classificadores concordaram entre si, mas discordaram do rótulo derivado das estrelas.
+Em 610 casos, os dois modelos concordaram entre si, mas discordaram do rótulo derivado das estrelas.
 
-Desses casos, 108 apresentaram pontuações iguais ou superiores a 90% nos dois modelos.
+Desses casos, 108 apresentaram pontuações de pelo menos 90% em ambos os classificadores.
 
-Esses resultados são utilizados para triagem e investigação automática. A concordância entre dois classificadores não comprova que as estrelas estão incorretas.
+Esses resultados representam indícios para investigação, não a confirmação de erros nos rótulos.
 
-As pontuações dos modelos também não devem ser interpretadas como probabilidades calibradas de acerto.
+Ambos os modelos foram treinados utilizando rótulos derivados das estrelas e podem cometer erros semelhantes.
 
-### Visualização da auditoria
+![Auditoria automatizada](artifacts/figures/triagem_automatica.png)
 
-![Triagem automática](artifacts/figures/triagem_automatica.png)
+### Arquivos gerados
 
-A auditoria gera automaticamente:
+Os scripts geram relatórios locais na pasta `artifacts/`, incluindo:
 
+- `erros_teste.csv`
 - `auditoria_automatica.csv`
 - `auditoria_resumo.json`
 - `relatorio_auditoria.md`
 
-Os relatórios locais contêm informações da análise e não precisam ser enviados ao repositório público.
+Os relatórios que contêm textos de consumidores não são incluídos no repositório público.
 
-## Instalação local
+## 🌐 Demonstração pública com Streamlit
+
+**[Acessar demonstração online](https://signalreview-ml-demo.streamlit.app/)**
+
+O projeto possui uma interface pública desenvolvida com Streamlit.
+
+A aplicação permite:
+
+1. Digitar uma avaliação de produto em português.
+2. Enviar o texto para classificação.
+3. Visualizar o sentimento previsto.
+4. Consultar as pontuações estimadas para cada classe.
+
+A aplicação carrega o modelo treinado diretamente do Hugging Face.
+
+A demonstração foi publicada no Streamlit Community Cloud e testada com sucesso em uma janela anônima de outro navegador.
+
+### Executar o Streamlit localmente
+
+Após configurar o ambiente Python, instale as dependências da demonstração:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r demo/requirements.txt
+```
+
+Execute:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run demo/app.py
+```
+
+O Streamlit disponibilizará a interface local, normalmente em:
+
+`http://localhost:8501`
+
+**Atenção:** esse endereço funciona somente no computador em que o Streamlit estiver executando.
+
+Para acessar a aplicação pública, utilize:
+
+https://signalreview-ml-demo.streamlit.app/
+
+## 🛠️ Instalação e reprodução do treinamento
 
 ### Pré-requisitos
 
 - Python 3.12
 - Git
-- Editor de código, como VS Code
+- Acesso à internet para baixar o dataset
+- VS Code ou outro editor de código
 
-### Clonar o repositório
-
-Após a publicação no GitHub:
+### 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/SabrinaVVascon/signalreview-ml.git
 cd signalreview-ml
 ```
 
-Substitua `SEU-USUARIO` pelo usuário real do GitHub.
+### 2. Criar o ambiente virtual
 
-### Criar o ambiente virtual
-
-No Windows:
+No Windows, utilizando PowerShell:
 
 ```powershell
 python -m venv .venv
 ```
 
-### Instalar dependências
+### 3. Instalar as dependências
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Os comandos seguintes pressupõem o ambiente virtual ativado. Também é possível utilizar diretamente o executável Python da pasta `.venv`.
-
-## Preparação e treinamento
-
-Execute os comandos na raiz do projeto.
-
-### 1. Download do dataset
+Caso o ambiente tenha sido criado pelo `uv` sem o `pip`, também é possível instalar as dependências utilizando:
 
 ```powershell
-python -m ml.download_dataset
+uv pip install --python .venv/Scripts/python.exe -r requirements.txt
 ```
 
-### 2. Preparação das avaliações
+### 4. Baixar o dataset
 
 ```powershell
-python -m ml.prepare_data
+.\.venv\Scripts\python.exe -m ml.download_dataset
 ```
 
-### 3. Treinamento dos modelos
+### 5. Preparar os dados
 
 ```powershell
-python -m ml.train
+.\.venv\Scripts\python.exe -m ml.prepare_data
 ```
 
-O treinamento compara os classificadores e seleciona o modelo com melhor F1-score macro de validação.
+### 6. Treinar os modelos
 
-O modelo selecionado será armazenado em:
+```powershell
+.\.venv\Scripts\python.exe -m ml.train
+```
+
+O treinamento realiza a comparação dos classificadores e seleciona o modelo com melhor F1-score macro na validação.
+
+### Arquivos produzidos
+
+Após o treinamento:
+
+- `artifacts/model.joblib` — pipeline de vetorização e classificação.
+- `artifacts/metrics.json` — métricas e informações do treinamento.
+- `data/processed/reviews.csv` — avaliações preparadas.
+
+Esses arquivos são gerados localmente.
+
+Os resultados podem variar caso os dados, as dependências ou o código sejam modificados.
+
+## 🧪 Testes e análises automatizadas
+
+O projeto utiliza pytest para validar partes do treinamento e da API.
+
+### Executar os testes
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Resultado da última execução local:
 
 ```text
-artifacts/model.joblib
+4 passed, 1 warning in 1.72s
 ```
 
-As métricas e informações do treinamento serão salvas em:
+O aviso está relacionado à depreciação de uma integração utilizada por uma dependência de testes.
 
-```text
-artifacts/metrics.json
-```
-
-## API REST com FastAPI
-
-A aplicação disponibiliza uma API para realizar previsões de sentimentos.
-
-### Iniciar a API localmente
+### Analisar divergências
 
 ```powershell
-python -m uvicorn app.main:app --reload
+.\.venv\Scripts\python.exe -m ml.analyze_errors
 ```
 
-Documentação interativa:
+### Executar a auditoria automática
 
-http://127.0.0.1:8000/docs
+```powershell
+.\.venv\Scripts\python.exe -m ml.analyze_auto
+```
+
+### Gerar gráficos
+
+```powershell
+.\.venv\Scripts\python.exe -m ml.plot_metrics
+```
+
+Os gráficos serão gerados no diretório:
+
+`artifacts/figures/`
+
+A ampliação dos testes de integração e reprodução permanece como melhoria planejada.
+
+## 🔌 API REST com FastAPI
+
+O SignalReview ML disponibiliza uma API REST para classificação de sentimentos e consulta das informações do modelo.
 
 ### Endpoints
 
-| Método | Endpoint | Descrição |
+| Método | Endpoint | Função |
 |---|---|---|
-| GET | `/model-info` | Informações e métricas do modelo |
-| POST | `/predict` | Classificação de sentimentos |
+| GET | `/health` | Verificar o estado da API e do modelo |
+| GET | `/model-info` | Consultar informações e métricas |
+| POST | `/predict` | Classificar o sentimento de um texto |
+
+### Executar a API localmente
+
+Antes de iniciar, é necessário possuir os arquivos:
+
+- `artifacts/model.joblib`
+- `artifacts/metrics.json`
+
+Esses arquivos são produzidos pelo treinamento.
+
+Na raiz do projeto, execute:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+### Documentação local da API
+
+**Os endereços abaixo somente funcionam enquanto o servidor FastAPI estiver executando no seu computador.**
+
+| Recurso | Endereço local |
+|---|---|
+| Swagger UI | `http://127.0.0.1:8000/docs` |
+| Health Check | `http://127.0.0.1:8000/health` |
+| Informações do modelo | `http://127.0.0.1:8000/model-info` |
+
+Esses endereços não são públicos.
+
+O endereço `http://127.0.0.1:8000/` pode retornar `404 Not Found`, pois não existe uma página inicial definida na raiz da API.
 
 ### Exemplo de requisição
 
@@ -304,77 +461,15 @@ Endpoint: `POST /predict`
 }
 ```
 
-O exemplo apresenta o formato da resposta da API. As pontuações variam conforme o texto analisado.
+O exemplo demonstra o formato da resposta. As pontuações variam conforme o texto enviado.
 
-A API recebe uma avaliação em linguagem natural e retorna o sentimento previsto e as probabilidades estimadas das classes.
-
-## Análise automatizada
-
-O projeto contém scripts para investigar erros e gerar relatórios.
-
-### Análise dos erros
-
-```powershell
-python -m ml.analyze_errors
-```
-
-Identifica divergências entre as previsões do modelo e os rótulos de referência.
-
-### Auditoria automática
-
-```powershell
-python -m ml.analyze_auto
-```
-
-Treina um classificador auxiliar e compara as previsões dos modelos.
-
-### Geração dos gráficos
-
-```powershell
-python -m ml.plot_metrics
-```
-
-Os gráficos são armazenados em:
-
-```text
-artifacts/figures/
-```
-
-Arquivos gerados:
-
-- `comparacao_modelos.png`
-- `matriz_confusao.png`
-- `triagem_automatica.png`
-
-## Testes automatizados
-
-O projeto utiliza pytest para validação do treinamento e da API.
-
-Para executar os testes:
-
-```powershell
-python -m pytest -q
-```
-
-### Resultado da última execução local
-
-```text
-4 passed, 1 warning in 1.72s
-```
-
-Os quatro testes existentes passaram.
-
-O aviso identificado está relacionado à depreciação de uma integração de dependências utilizada pelo cliente de testes.
-
-A ampliação da cobertura de testes permanece como melhoria planejada.
-
-## Docker
+## 🐳 Docker
 
 A API também pode ser executada em um contêiner Docker.
 
-A imagem utiliza Python 3.12 e instala as dependências necessárias para executar a aplicação.
+O projeto utiliza uma imagem Python 3.12 com as dependências necessárias para executar o FastAPI e o Uvicorn.
 
-A configuração utiliza os arquivos:
+### Arquivos de configuração
 
 - `Dockerfile`
 - `.dockerignore`
@@ -382,11 +477,13 @@ A configuração utiliza os arquivos:
 
 ### Pré-requisitos
 
-- Docker Desktop ou Docker Engine
-- Modelo previamente treinado em `artifacts/model.joblib`
-- Métricas em `artifacts/metrics.json`
+- Docker Desktop ou Docker Engine instalado e em execução.
+- Modelo treinado em `artifacts/model.joblib`.
+- Métricas salvas em `artifacts/metrics.json`.
 
-O modelo treinado não é incluído no repositório Git, portanto deve estar disponível antes da construção da imagem.
+O Dockerfile não baixa automaticamente o modelo do Hugging Face.
+
+Por isso, os arquivos do modelo e das métricas precisam estar disponíveis localmente antes da construção da imagem.
 
 ### 1. Construir a imagem
 
@@ -402,15 +499,23 @@ docker build -t signalreview-ml .
 docker run --rm -p 8001:8000 signalreview-ml
 ```
 
-A porta 8001 do computador é direcionada para a porta 8000 do contêiner.
+A porta 8001 do computador é encaminhada para a porta 8000 dentro do contêiner.
 
-### 3. Acessar a documentação
+### 3. Acessar a documentação local
 
-http://127.0.0.1:8001/docs
+**Somente enquanto o contêiner estiver executando:**
 
-### 4. Testar o modelo
+| Recurso | Endereço local |
+|---|---|
+| Swagger UI | `http://127.0.0.1:8001/docs` |
+| Health Check | `http://127.0.0.1:8001/health` |
+| Informações do modelo | `http://127.0.0.1:8001/model-info` |
 
-Na documentação interativa, execute:
+Esses endereços são locais e não ficam disponíveis publicamente.
+
+### 4. Testar a classificação
+
+Na documentação Swagger, execute:
 
 - `GET /model-info`
 - `POST /predict`
@@ -421,51 +526,92 @@ A API deverá retornar as informações do modelo e realizar a classificação d
 
 A imagem Docker foi construída e executada com sucesso em ambiente Windows utilizando Docker Desktop e WSL 2.
 
-Foram confirmados:
+Foram validados:
 
-- Inicialização do contêiner
-- Inicialização do servidor Uvicorn
-- Disponibilidade da API na porta 8001
-- Retorno HTTP 200 nas requisições testadas
-- Carregamento do modelo de Regressão Logística
-- Classificação de sentimentos utilizando o modelo treinado
+- Construção da imagem Docker.
+- Inicialização do contêiner.
+- Inicialização do servidor Uvicorn.
+- Disponibilidade da API na porta 8001.
+- Respostas HTTP 200.
+- Carregamento do modelo de Regressão Logística.
+- Classificação de sentimentos utilizando o modelo treinado.
 
 **Status: Docker validado com sucesso.**
 
-## Limitações do projeto
+Para interromper a execução, utilize `Ctrl + C` no terminal que está executando o contêiner.
 
-Apesar dos resultados obtidos, o sistema possui limitações importantes:
+## ⚠️ Limitações e uso responsável
 
-- As classificações de referência são derivadas de estrelas, não de anotação humana independente.
-- A classificação é binária e não identifica sentimentos neutros.
-- Comentários irônicos ou ambíguos podem gerar previsões incorretas.
-- As probabilidades do modelo não passaram por calibração específica.
-- Classificadores diferentes podem cometer erros semelhantes.
-- O desempenho em outras plataformas ou domínios ainda não foi avaliado.
-- A auditoria automática identifica indícios de inconsistência, não erros comprovados nos dados.
+Apesar dos resultados obtidos, o SignalReview ML possui limitações:
 
-Essas limitações são consideradas na interpretação das métricas e nos relatórios do projeto.
+- O classificador é binário e não identifica sentimentos neutros.
+- Os rótulos de referência são derivados das estrelas atribuídas pelos consumidores.
+- Ironia, sarcasmo e sentimentos mistos podem prejudicar as previsões.
+- As probabilidades produzidas pelo modelo não passaram por calibração específica.
+- Os resultados não representam garantias de acerto em outros domínios.
+- O desempenho em outras plataformas não foi validado.
+- A auditoria automática realiza triagem de possíveis inconsistências, não validação humana independente.
+- Dois classificadores diferentes podem cometer erros semelhantes.
 
-## Dados e licenciamento
+Arquivos `joblib` utilizam serialização baseada em pickle e devem ser carregados somente quando provenientes de fontes confiáveis.
 
-Dataset original: [B2W-Reviews01](https://github.com/americanas-tech/b2w-reviews01).
+O modelo não deve ser utilizado como única base para decisões de alto impacto.
 
-A utilização dos dados deve respeitar as condições de atribuição e uso não comercial estabelecidas pela fonte original.
+## 📄 Dados, licença e créditos
 
-O repositório não inclui os arquivos brutos ou processados contendo as avaliações dos consumidores.
+O projeto utiliza o dataset **B2W-Reviews01**.
 
-Os dados utilizados podem ser obtidos por meio do script de download, respeitando os termos do dataset.
+Fonte original:
 
-A licença do código do projeto será definida separadamente.
+https://github.com/americanas-tech/b2w-reviews01
 
-## Objetivo
+O dataset foi disponibilizado sob a licença **CC BY-NC-SA 4.0**, que estabelece condições de atribuição, uso não comercial e compartilhamento pela mesma licença.
 
-O SignalReview ML foi desenvolvido como projeto autoral de portfólio em Engenharia de Inteligência Artificial, com foco na aplicação prática de Machine Learning supervisionado, processamento de linguagem natural, engenharia de software e disponibilização de modelos por API.
+O modelo publicado no Hugging Face utiliza essa licença como escolha conservadora.
 
-## Links do projeto
+A aplicabilidade jurídica da licença dos dados aos parâmetros treinados pode exigir análise específica.
 
-- **Código-fonte:** [GitHub](https://github.com/SabrinaVVascon/signalreview-ml)
-- **Modelo treinado:** [Hugging Face](https://huggingface.co/SabrinaVV/signalreview-ml)
-- **Model Card:** [Documentação do modelo](https://huggingface.co/SabrinaVV/signalreview-ml)
+Os arquivos brutos e processados contendo avaliações dos consumidores não são distribuídos neste repositório.
 
-O modelo de Regressão Logística está disponível no Hugging Face, acompanhado das métricas, documentação técnica e instruções de inferência.
+O código-fonte do projeto ainda não possui uma licença própria explicitamente definida.
+
+## ✅ Status do projeto
+
+- [x] Configuração do ambiente Python
+- [x] Ingestão e preparação dos dados
+- [x] Treinamento supervisionado
+- [x] Comparação de classificadores
+- [x] Avaliação de desempenho
+- [x] Matriz de confusão
+- [x] Análise de erros
+- [x] Auditoria automatizada
+- [x] Geração de gráficos
+- [x] API REST com FastAPI
+- [x] Testes automatizados iniciais
+- [x] Construção da imagem Docker
+- [x] Validação da API no Docker
+- [x] Publicação do código no GitHub
+- [x] Publicação do modelo no Hugging Face
+- [x] Criação do Model Card
+- [x] Demonstração Streamlit publicada
+- [x] Teste público em janela anônima
+- [ ] Ampliação dos testes de integração
+- [ ] Verificação de reprodução em ambiente limpo
+
+## 🎯 Objetivo
+
+O SignalReview ML foi desenvolvido como projeto autoral de portfólio em **Engenharia de Inteligência Artificial**, demonstrando conhecimentos práticos em:
+
+- Machine Learning supervisionado.
+- Processamento de linguagem natural.
+- Preparação e vetorização de dados textuais.
+- Treinamento e avaliação de classificadores.
+- Investigação automatizada de divergências.
+- Desenvolvimento e integração de APIs.
+- Containerização com Docker.
+- Publicação de modelos no Hugging Face.
+- Disponibilização de aplicações de IA na web.
+
+---
+
+**Projeto autoral de portfólio em Engenharia de Inteligência Artificial — 2026.**
