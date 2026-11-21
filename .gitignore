@@ -1,0 +1,25 @@
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Ambiente e configuracoes
+.env
+.env.*
+.DS_Store
+.vscode/.ropeproject/
+
+# Modelos e resultados intermediarios
+artifacts/*.joblib
+artifacts/*.json
+artifacts/*.csv
+artifacts/*.md
+
+# Dados brutos e processados
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep

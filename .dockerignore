@@ -1,0 +1,15 @@
+
+.venv
+.git
+.pytest_cache
+__pycache__
+*.pyc
+data
+tests
+.vscode
+README.md
+
+# Manter apenas o necessario para a API
+artifacts/*
+!artifacts/model.joblib
+!artifacts/metrics.json
